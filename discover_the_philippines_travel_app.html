@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discover the Philippines</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom Styling & Aesthetics */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0d1b2a;
+      color: #e0e1dd;
+    }
+
+    /* Hero Section Background & Overlay */
+    .hero-bg {
+      background-image: url('https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .hero-overlay {
+      background: linear-gradient(180deg, rgba(13, 27, 42, 0.75) 0%, rgba(13, 27, 42, 0.95) 100%);
+    }
+
+    /* Category Badges */
+    .badge-sea {
+      background-color: rgba(14, 165, 233, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .badge-mountain {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+    .badge-landscapes {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    /* Spot item highlight border */
+    .spot-item {
+      border-left: 3px solid #f59e0b;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Strict Card Height & Layout Alignment */
+    .places-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .place-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #1b263b;
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .place-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.15);
+    }
+
+    /* Strict Image Box with Fixed Height & Overflow Clipping */
+    .card-img-container {
+      height: 200px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background-color: #0d1b2a;
+      flex-shrink: 0; /* Prevents image area from shrinking */
+    }
+
+    .card-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: transform 0.5s ease;
+    }
+
+    .place-card:hover .card-img-container img {
+      transform: scale(1.08);
+    }
+
+    /* Strict Inner Content Layout */
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      padding: 1.25rem;
+    }
+
+    .card-description {
+      flex-grow: 1; /* Pushes the spots list strictly to the bottom */
+      margin-bottom: 1.25rem;
+    }
+
+    /* Re-triggerable Fade-In Animation */
+    @keyframes fadeInEffect {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeInEffect 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Custom Scrollbar for spots list */
+    .spots-container {
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .spots-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    .spots-container::-webkit-scrollbar-thumb {
+      background: #f59e0b;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-amber-500 selection:text-slate-900">
+
+  <!-- Header / Hero Section -->
+  <header class="hero-bg relative text-white border-b border-slate-800">
+    <div class="hero-overlay py-16 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-5xl mx-auto text-center space-y-6">
+        
+        <!-- Main Title with Adventure Styling -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold tracking-wider uppercase mb-2">
+          <span>🌴 Explore Paradise</span>
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white drop-shadow-md">
+          Discover the <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500">Philippines</span>
+        </h1>
+
+        <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          Find pristine beaches, emerald mountains, stunning landscape wonders, and unforgettable island adventures across 7,641 islands.
+        </p>
+
+        <!-- Dynamic Category Filter Buttons -->
+        <div class="flex flex-wrap justify-center gap-2.5 sm:gap-3 pt-4" id="filter-buttons">
+          <button data-category="all" class="filter-btn px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 bg-amber-500 text-slate-950 font-semibold shadow-lg shadow-amber-500/20">
+            All Places
+          </button>
+          <button data-category="sea" class="filter-btn px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+            🌊 Seas & Islands
+          </button>
+          <button data-category="mountain" class="filter-btn px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+            ⛰️ Mountains
+          </button>
+          <button data-category="landscapes" class="filter-btn px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+            🌄 Landscapes
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Places Showcase Section -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full">
+    
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 border-b border-slate-800 pb-4 gap-2">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Top Destinations</h2>
+        <p class="text-slate-400 text-sm mt-1">Select a category above to filter destinations across the archipelago.</p>
+      </div>
+      <div id="place-count" class="text-xs font-semibold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+        Showing All Places
+      </div>
+    </div>
+
+    <!-- Rigid Places Grid Container -->
+    <div id="places-container" class="places-grid">
+      <!-- Dynamic place cards render here -->
+    </div>
+
+    <!-- Empty State Message -->
+    <div id="no-results" class="hidden text-center py-16 bg-slate-800/30 rounded-2xl border border-dashed border-slate-700">
+      <div class="text-4xl mb-3">🧭</div>
+      <h3 class="text-lg font-semibold text-white">No destinations found</h3>
+      <p class="text-slate-400 text-sm mt-1">Try selecting a different category to explore destinations.</p>
+    </div>
+
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="bg-slate-950 border-t border-slate-800 text-slate-400 text-center py-6 px-4 text-xs">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p>© 2026 Discover the Philippines | Travel & Adventure Planner</p>
+      <p class="text-slate-500">Built with standard web technologies & Tailwind CSS</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Destinations dataset with unique images, consistent structure, and fixed categories
+    const places = [
+      {
+        id: "palawan",
+        name: "Palawan",
+        category: "sea",
+        image: "https://media.cntraveler.com/photos/5668630dc3c9e01555a4d421/master/w_1024%2Cc_limit/palawan-philippines-coron-cr-alamy.jpg",
+        description: "Famous for dramatic limestone cliffs, turquoise lagoons, white-sand islands, and world-class diving spots.",
+        spots: [
+          "El Nido lagoons & island-hopping",
+          "Coron shipwreck diving",
+          "Puerto Princesa Underground River",
+          "Tubbataha Reefs Natural Park"
+        ]
+      },
+      {
+        id: "chocolate-hills",
+        name: "Chocolate Hills, Bohol",
+        category: "landscapes",
+        image: "https://www.travelandleisure.com/thmb/8pgF0foxdlAyJzG42-owj79WTLk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/TAL-chocolate-hills-CHOCLATEHILLS0325-691d3af041ec43499e1f7b7b1ba2abf3.jpg",
+        description: "Geological formation of over 1,260 symmetrical conical hills that turn chocolate brown during the dry season.",
+        spots: [
+          "Chocolate Hills Main Complex",
+          "ATV Adventure Trails",
+          "Loboc River Scenic Cruise",
+          "Philippine Tarsier Sanctuary"
+        ]
+      },
+      {
+        id: "baguio",
+        name: "Baguio City",
+        category: "mountain",
+        image: "https://miro.medium.com/1*acl_kd5JJbgpWg4iRTHgtQ.png",
+        description: "A cool highland city known for pine trees, fresh strawberries, colonial history, and vibrant indigenous art.",
+        spots: [
+          "Burnham Park Boat Ride",
+          "Session Road Food Walk",
+          "Mines View Park Overlook",
+          "Camp John Hay Pine Trails"
+        ]
+      },
+      {
+        id: "batanes",
+        name: "Batanes Islands",
+        category: "landscapes",
+        image: "https://upload.wikimedia.org/wikipedia/commons/9/97/Sabtang_Batanes.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original",
+        description: "Northernmost sanctuary featuring rolling emerald hills, stone houses, ocean cliffs, and peaceful wind-swept vistas.",
+        spots: [
+          "Marlboro Hills (Racuh a Payaman)",
+          "Sabtang Stone Houses",
+          "Basco Lighthouse & Hilltop",
+          "Valugan Boulder Beach"
+        ]
+      },
+      {
+        id: "boracay",
+        name: "Boracay Island",
+        category: "sea",
+        image: "https://images.lifestyleasia.com/wp-content/uploads/sites/6/2022/12/22224603/boracay-travel-guide-philippines-beach.jpg?tr=w-1200,h-900",
+        description: "World-renowned beach destination with powdery white sand, vibrant aquatic sports, and unforgettable sunsets.",
+        spots: [
+          "White Beach Station 1-3",
+          "Puka Shell Beach",
+          "Paraw Sunset Sailing",
+          "Bulabog Kite Surfing"
+        ]
+      },
+      {
+        id: "banaue",
+        name: "Banaue & Batad",
+        category: "mountain",
+        image: "https://images.squarespace-cdn.com/content/v1/5a87961cbe42d637c54cab93/1566482229699-EW4ZOHJQ961AJGK2F1HJ/batad-to-pula-banaue-hike.jpg",
+        description: "Ancient 2,000-year-old rice terraces carved into Cordillera mountainsides by indigenous Ifugao ancestors.",
+        spots: [
+          "Batad Amphitheater Terraces",
+          "Banaue Viewpoint",
+          "Tappiyah Waterfall Trek",
+          "Bangaan Heritage Village"
+        ]
+      },
+      {
+        id: "siargao",
+        name: "Siargao Island",
+        category: "sea",
+        image: "https://ocarramedia.com/wp-content/uploads/2026/03/Siargao-Island-Page-Hero-cloud9-surfer-boardwalk-perspective.webp",
+        description: "The surfing capital of the Philippines, featuring coconut forests, tidal rock pools, and crystal-clear lagoons.",
+        spots: [
+          "Cloud 9 Surfing Boardwalk",
+          "Sugba Lagoon Sanctuary",
+          "Magpupungko Rock Pools",
+          "Guyam, Daku & Naked Islands"
+        ]
+      },
+      {
+        id: "kayangan-lake",
+        name: "Kayangan Lake, Coron",
+        category: "landscapes",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-YInsm8YeQLw4Pg4jaXqobeNAsf7hYMI-a_2L930heApPBPTeAtbfVTY&s=10",
+        description: "Acclaimed as one of Asia's cleanest freshwater lakes, framed by sheer limestone cliffs and blue lagoon waters.",
+        spots: [
+          "Kayangan Iconic Viewpoint",
+          "Barracuda Lake Free Diving",
+          "Twin Lagoon Kayaking",
+          "Coral Garden Snorkeling"
+        ]
+      },
+      {
+        id: "dingalan",
+        name: "Dingalan, Aurora",
+        category: "mountain",
+        image: "https://img.cnt.traveloka.com/tvlk/dam/i/01ke6mxqbjk8yf7mht2qnwhjqe.jpeg",
+        description: "Dubbed the 'Batanes of the East' with dramatic coastal mountain ridges overlooking the vast Pacific Ocean.",
+        spots: [
+          "Pacific Viewdeck Trail",
+          "Dingalan Mountain Lighthouse",
+          "Lamao Caves & Rock Formations",
+          "Tanawan Waterfalls"
+        ]
+      },
+      {
+        id: "la-union",
+        name: "La Union",
+        category: "sea",
+        image: "https://res.klook.com/image/upload/fl_lossy.progressive,w_750,c_limit,q_60/Mobile/City/le6zemiufpsrvnsutf34.jpg",
+        description: "A popular surf spot with consistent waves, thriving beachfront cafes, and relaxed sunset beach vibes.",
+        spots: [
+          "San Juan Surfing Strip",
+          "Tangadan Falls Trek",
+          "Ma-Cho Taoist Temple",
+          "Grape Farm Agritours"
+        ]
+      },
+      {
+        id: "mount-apo",
+        name: "Mount Apo",
+        category: "mountain",
+        image: "https://i.pinimg.com/736x/a0/8a/db/a08adb366406b3f969840015d52589db.jpg",
+        description: "The highest mountain peak in the Philippines (2,954m), boasting mossy forests, sulfur vents, and highland lakes.",
+        spots: [
+          "Mount Apo Summit Trail",
+          "Lake Venado Campsite",
+          "Kapatagan Highland Park",
+          "Agco Hot Springs"
+        ]
+      },
+      {
+        id: "tagaytay",
+        name: "Tagaytay",
+        category: "mountain",
+        image: "https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1295,h_863/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/smhpritpzwjquglizria/TagaytayDayTour.jpg",
+        description: "A breezy highland ridge offering picturesque panoramic views of Taal Lake and the iconic Taal Volcano island.",
+        spots: [
+          "Taal Ridge Viewpoints",
+          "People's Park in the Sky",
+          "Picnic Grove & Zip Line",
+          "Sonya's Garden Dining"
+        ]
+      },
+      {
+        id: "cebu",
+        name: "Cebu",
+        category: "sea",
+        image: "https://www.pelago.com/img/destinations/cebu/1011-1022_cebu.jpg",
+        description: "Known as the Queen City of the South, offering pristine beaches, rich historical landmarks, and vibrant culture.",
+        spots: [
+          "Kawasan Falls canyoneering in Badian",
+          "Oslob whale shark watching",
+          "Mactan Island beaches and historical shrines",
+          "Moalboal sardine run and sea turtles"
+        ]
+      },
+      {
+        id: "vigan",
+        name: "Vigan, Ilocos Sur",
+        category: "landscapes",
+        image: "https://www.bigbiketours.com/wp-content/uploads/2026/01/Vigan-City-Calle-Crisologo.jpeg",
+        description: "A UNESCO World Heritage Site famous for its well-preserved Spanish colonial architecture and cobblestone streets.",
+        spots: [
+          "Historic Calle Crisologo",
+          "Bantay Bell Tower",
+          "St. Paul Metropolitan Cathedral",
+          "Syquia Mansion Museum"
+        ]
+      },
+      {
+        id: "caramoan",
+        name: "Caramoan, Camarines Sur",
+        category: "sea",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrS9uXoJUmXGwevtG2sN-FMcd2HpB_Uxspk9zRNurvnpfIwwNc26JINxY&s=10",
+        description: "An unspoiled paradise featuring limestone formations, hidden lagoons, pristine white beaches, and rich marine life.",
+        spots: [
+          "Matukad Island white sand beach",
+          "Lahuy Island exploration",
+          "Sabang Cove island hopping",
+          "Gota Beach resort area"
+        ]
+      },
+      {
+        id: "patar-pangasinan",
+        name: "Patar Beach, Bolinao",
+        category: "sea",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8uhcoqYVT9QZfCQGrdPS9icVQyW6jz-bFrGzwgktVlznbl5pc5rlRC3c&s=10",
+        description: "Famous for its golden-white sand, clear blue waters, and the historic cape lighthouse in western Pangasinan.",
+        spots: [
+          "Patar Golden Sand Beach",
+          "Cape Bolinao Lighthouse",
+          "Enchanted Cave",
+          "Bolinao Waterfalls"
+        ]
+      },
+      {
+        id: "mt-pulag",
+        name: "Mt. Pulag, Benguet",
+        category: "mountain",
+        image: "https://upload.wikimedia.org/wikipedia/commons/e/e2/Panoramic_Shot_of_Mt._Pulag_Summit_and_Grassland.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original",
+        description: "The highest peak in Luzon, famous for its breathtaking 'sea of clouds' phenomenon and rich mossy forests.",
+        spots: [
+          "Ambangeg Trail trek",
+          "Akiki 'Killer' Trail",
+          "Summit Sunrise & Sea of Clouds view",
+          "Dwarf Bamboo Hills"
+        ]
+      },
+      {
+        id: "mt-pinatubo",
+        name: "Mt. Pinatubo, Zambales",
+        category: "mountain",
+        image: "https://suroy.ph/wp-content/uploads/2025/03/mtpinatubo_web.jpg",
+        description: "A formerly active volcano transformed into a stunning crater lake with turquoise waters and rugged caldera walls.",
+        spots: [
+          "Pinatubo Crater Lake Trek",
+          "4x4 Super Jeep Adventure Ride",
+          "Capas National Shrine",
+          "Ucana Valley canyons"
+        ]
+      },
+      {
+        id: "mt-ulap",
+        name: "Mt. Ulap, Itogon Benguet",
+        category: "mountain",
+        image: "https://sa.kapamilya.com/absnews/abscbnnews/media/2017/life/02/26/mount-ulap-1.jpg",
+        description: "A scenic hiking destination offering panoramic views of pine ridges, rolling grassland hills, and burial caves.",
+        spots: [
+          "Gung-an Peak Rock Formation",
+          "Ambanao Pucay Summit",
+          "Suspension Bridge crossing",
+          "Pine forest trails"
+        ]
+      },
+      {
+        id: "mt-sembrano",
+        name: "Mt. Sembrano, Rizal",
+        category: "mountain",
+        image: "https://highlandreflections.com/wp-content/uploads/2019/06/img20190605093709-1.jpg",
+        description: "A popular trekking destination with a panoramic view of Laguna de Bay, Sierra Madre mountains, and the surrounding lowlands.",
+        spots: [
+          "The Mango Orchard",
+          "Mangggahan Falls",
+          "The Site of Our Lady of Maulawin",
+          "The Simbahan Boulder (The Church Rock)"
+        ]
+      }, 
+    ];
+
+    // DOM Elements
+    const container = document.getElementById("places-container");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const noResults = document.getElementById("no-results");
+    const placeCountBadge = document.getElementById("place-count");
+
+    // Helper function for category text and styling
+    function getCategoryBadge(category) {
+      switch (category) {
+        case "sea":
+          return `<span class="badge-sea text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">🌊 Seas & Islands</span>`;
+        case "mountain":
+          return `<span class="badge-mountain text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">⛰️ Mountain</span>`;
+        case "landscapes":
+          return `<span class="badge-landscapes text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">🌄 Landscape</span>`;
+        default:
+          return `<span class="bg-slate-700 text-slate-300 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">${category}</span>`;
+      }
+    }
+
+    // Render Function with animation and rigid height structure
+    function renderPlaces(category = "all") {
+      container.innerHTML = "";
+
+      const filtered = category === "all" 
+        ? places 
+        : places.filter(p => p.category === category);
+
+      // Update count text
+      if (category === "all") {
+        placeCountBadge.textContent = `Showing All ${filtered.length} Destinations`;
+      } else {
+        placeCountBadge.textContent = `Showing ${filtered.length} ${category.toUpperCase()}`;
+      }
+
+      if (filtered.length === 0) {
+        noResults.classList.remove("hidden");
+        return;
+      } else {
+        noResults.classList.add("hidden");
+      }
+
+      // Render cards with precise structural containment
+      filtered.forEach((place, index) => {
+        const card = document.createElement("article");
+        card.className = "place-card animate-fade-in";
+        card.style.animationDelay = `${index * 0.05}s`;
+
+        const spotsListHTML = place.spots
+          .map(spot => `<li class="spot-item px-3 py-1.5 rounded text-xs text-slate-300 font-medium leading-relaxed">${spot}</li>`)
+          .join("");
+
+        card.innerHTML = `
+          <!-- Image Container with Strict Clipping & Fixed Height -->
+          <div class="card-img-container">
+            <img src="${place.image}" alt="${place.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=800&q=80'" />
+          </div>
+
+          <!-- Structured Content Body -->
+          <div class="card-content">
+            <!-- Category Badge -->
+            <div class="mb-2">
+              ${getCategoryBadge(place.category)}
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-white tracking-tight mb-2">${place.name}</h3>
+
+            <!-- Flexible Description Area (Pushes tourist spots downwards) -->
+            <p class="card-description text-slate-400 text-sm leading-relaxed">${place.description}</p>
+
+            <!-- Fixed Bottom Tourist Spots Section (Never overlaps) -->
+            <div class="pt-3 border-t border-slate-800">
+              <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span>📍 Key Tourist Spots</span>
+              </h4>
+              <ul class="spots-container space-y-1.5">
+                ${spotsListHTML}
+              </ul>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Filter Button Event Listeners
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        // Reset active state classes
+        filterButtons.forEach(btn => {
+          btn.className = "filter-btn px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700";
+        });
+
+        // Apply active state class
+        button.className = "filter-btn px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20";
+
+        // Re-render filtered list
+        const category = button.getAttribute("data-category");
+        renderPlaces(category);
+      });
+    });
+
+    // Initial load
+    renderPlaces();
+  </script>
+</body>
+</html>
